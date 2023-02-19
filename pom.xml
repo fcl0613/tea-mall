@@ -12,6 +12,7 @@
         <module>mall-mybatis</module>
         <module>mall-seller</module>
         <module>mall-web</module>
+        <module>mall-common</module>
     </modules>
     <packaging>pom</packaging>
 
