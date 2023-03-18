@@ -11,6 +11,7 @@ import com.wwx.teamall.model.Result;
 import com.wwx.teamall.service.TAdminService;
 import com.wwx.teamall.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -28,10 +29,10 @@ import java.util.List;
 @Slf4j
 public class TAdminServiceImpl extends ServiceImpl<TAdminMapper, TAdmin> implements TAdminService {
 
-    @Resource
+    @Autowired
     private TAdminMapper tAdminMapper;
 
-    @Resource
+    @Autowired
     private JWTUtil jwtUtil;
 
     @Override

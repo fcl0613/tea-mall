@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwx.teamall.mapper.TUserMapper">
+    <select id="getUserPage" resultType="com.wwx.teamall.entity.TUser">
+        select id, username, phone, id_card, sex, role from t_user
+        <where>
+            <if test="keyword != null and keyword != ''">
+                username = #{keyword}
+            </if>
+        </where>
+    </select>
+</mapper>
