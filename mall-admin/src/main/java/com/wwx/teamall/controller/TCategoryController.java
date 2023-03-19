@@ -43,13 +43,18 @@ public class TCategoryController {
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public Result update(@RequestParam("id") Integer id) {
+    public Result delete(@RequestParam("id") Integer id) {
         return tCategoryService.delete(id);
     }
 
     @RequestMapping("/info")
     public Result getInfo(@RequestParam("id") Integer id) {
         return tCategoryService.getInfo(id);
+    }
+
+    @RequestMapping("/parent")
+    public Result getAllParentCategory() {
+        return tCategoryService.getAllParentCategory();
     }
 }
 

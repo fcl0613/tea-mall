@@ -23,4 +23,6 @@ public interface TCategoryService extends IService<TCategory> {
     Result delete(Integer id);
 
     Result getInfo(Integer id);
+
+    Result getAllParentCategory();
 }
