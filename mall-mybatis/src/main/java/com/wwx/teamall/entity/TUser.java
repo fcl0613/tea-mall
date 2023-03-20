@@ -48,5 +48,5 @@ public class TUser implements Serializable {
 
     private String birthday;
 
-
+    private String nickName;
 }

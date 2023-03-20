@@ -1,11 +1,13 @@
 package com.wwx.teamall.service.impl;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wwx.teamall.entity.TUser;
 import com.wwx.teamall.entity.vo.UserVo;
+import com.wwx.teamall.enums.UserRoleEnum;
 import com.wwx.teamall.exception.BadRequestException;
 import com.wwx.teamall.mapper.TUserMapper;
 import com.wwx.teamall.model.Result;
@@ -35,9 +37,13 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
         if (count > 0) {
             throw new BadRequestException("当前用户名已存在，请更换后重试");
         }
+        // 默认密码
         String password = DigestUtil.md5Hex("123456");
         user.setPassword(password);
+        // 默认头像
         user.setAvatar("default.jpg");
+        user.setRole(UserRoleEnum.COMMON_USER.getCode());
+        user.setNickName(RandomUtil.randomString(10));
         this.save(user);
         return Result.success("添加成功");
     }
