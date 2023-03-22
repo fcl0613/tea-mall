@@ -4,6 +4,7 @@ import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wwx.teamall.entity.TUser;
 import com.wwx.teamall.entity.vo.LoginVo;
+import com.wwx.teamall.enums.UserRoleEnum;
 import com.wwx.teamall.exception.BadRequestException;
 import com.wwx.teamall.mapper.TUserMapper;
 import com.wwx.teamall.model.Result;
@@ -36,6 +37,9 @@ public class SellerServiceImpl implements SellerService {
         TUser user = users.get(0);
         if (!user.getPassword().equals(DigestUtil.md5Hex(password))) {
             throw new BadRequestException("密码错误");
+        }
+        if (user.getRole() != UserRoleEnum.TEA_GROWER.getCode()) {
+            throw new BadRequestException("账号无权限");
         }
         String token = jwtUtil.createToken(user.getId(), user.getUsername());
         LoginVo loginVo = new LoginVo();
