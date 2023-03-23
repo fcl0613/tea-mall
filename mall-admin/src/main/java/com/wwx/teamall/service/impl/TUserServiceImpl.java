@@ -45,7 +45,7 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
         user.setRole(UserRoleEnum.COMMON_USER.getCode());
         user.setNickName(RandomUtil.randomString(10));
         this.save(user);
-        return Result.success("添加成功");
+        return Result.success();
     }
 
     @Override
@@ -61,13 +61,13 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
     @Override
     public Result updateUser(TUser user) {
         this.updateById(user);
-        return Result.success("更新成功");
+        return Result.success();
     }
 
     @Override
     public Result delete(Integer id) {
         this.removeById(id);
-        return Result.success("删除成功");
+        return Result.success();
     }
 
     @Override

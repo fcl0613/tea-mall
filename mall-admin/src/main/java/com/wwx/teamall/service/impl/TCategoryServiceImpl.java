@@ -32,7 +32,7 @@ public class TCategoryServiceImpl extends ServiceImpl<TCategoryMapper, TCategory
     @Override
     public Result create(TCategory category) {
         this.save(category);
-        return Result.success("添加成功");
+        return Result.success();
     }
 
     @Override
@@ -52,13 +52,13 @@ public class TCategoryServiceImpl extends ServiceImpl<TCategoryMapper, TCategory
     @Override
     public Result updateCategory(TCategory category) {
         this.updateById(category);
-        return Result.success("更新成功");
+        return Result.success();
     }
 
     @Override
     public Result delete(Integer id) {
         this.removeById(id);
-        return Result.success("删除成功");
+        return Result.success();
     }
 
     @Override
