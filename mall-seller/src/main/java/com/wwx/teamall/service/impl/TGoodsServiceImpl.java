@@ -11,6 +11,7 @@ import com.wwx.teamall.entity.DTO.UpdateGoodsDTO;
 import com.wwx.teamall.entity.TGoods;
 import com.wwx.teamall.entity.vo.GoodsInfoVo;
 import com.wwx.teamall.entity.vo.GoodsListVo;
+import com.wwx.teamall.exception.BadRequestException;
 import com.wwx.teamall.mapper.TGoodsMapper;
 import com.wwx.teamall.model.Result;
 import com.wwx.teamall.service.TGoodsService;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -136,6 +138,9 @@ public class TGoodsServiceImpl extends ServiceImpl<TGoodsMapper, TGoods> impleme
     @Override
     public Result getGoodsInfo(Integer id) {
         TGoods goods = goodsMapper.selectById(id);
+        if(Objects.isNull(goods)) {
+            throw new BadRequestException("商品不存在");
+        }
         GoodsInfoVo goodsInfoVo = new GoodsInfoVo();
         goodsInfoVo.setCategoryId(goods.getCategoryId());
         goodsInfoVo.setCategoryParentId(goods.getCategoryParentId());
