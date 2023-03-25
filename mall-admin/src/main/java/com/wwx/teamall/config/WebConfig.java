@@ -25,7 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/admin/login");
+                .excludePathPatterns("/admin/login")
+                .excludePathPatterns("/image/**");
     }
 
     /**
@@ -49,7 +50,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 商品图片
-        registry.addResourceHandler("/image/goods/**")
+        registry.addResourceHandler("/image/**")
                 .addResourceLocations("file:" + "D:\\Programming\\IdeaProject\\tea-mall\\image\\");
     }
 }
