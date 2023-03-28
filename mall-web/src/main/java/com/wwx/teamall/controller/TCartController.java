@@ -1,11 +1,13 @@
 package com.wwx.teamall.controller;
 
 
+import com.wwx.teamall.entity.DTO.DeleteCartBatchDTO;
 import com.wwx.teamall.model.Result;
 import com.wwx.teamall.service.TCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +45,11 @@ public class TCartController {
     @PostMapping("/delete")
     public Result deleteCart(@RequestParam("id") Integer id) {
         return cartService.deleteCart(id);
+    }
+
+    @PostMapping("/delete/batch")
+    public Result deleteCartBatch(@RequestBody DeleteCartBatchDTO deleteCartBatchDTO) {
+        return cartService.deleteCartBatch(deleteCartBatchDTO);
     }
 }
 

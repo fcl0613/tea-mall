@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wwx.teamall.entity.DO.CartDO;
+import com.wwx.teamall.entity.DTO.DeleteCartBatchDTO;
 import com.wwx.teamall.entity.TCart;
 import com.wwx.teamall.mapper.CartMapper;
 import com.wwx.teamall.mapper.TCartMapper;
@@ -69,6 +70,12 @@ public class TCartServiceImpl extends ServiceImpl<TCartMapper, TCart> implements
     @Override
     public Result deleteCart(Integer id) {
         this.removeById(id);
+        return Result.success();
+    }
+
+    @Override
+    public Result deleteCartBatch(DeleteCartBatchDTO deleteCartBatchDTO) {
+        this.removeByIds(deleteCartBatchDTO.getList());
         return Result.success();
     }
 

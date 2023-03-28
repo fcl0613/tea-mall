@@ -1,6 +1,7 @@
 package com.wwx.teamall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wwx.teamall.entity.DTO.DeleteCartBatchDTO;
 import com.wwx.teamall.entity.TCart;
 import com.wwx.teamall.model.Result;
 
@@ -21,4 +22,6 @@ public interface TCartService extends IService<TCart> {
     Result getCartList();
 
     Result deleteCart(Integer id);
+
+    Result deleteCartBatch(DeleteCartBatchDTO deleteCartBatchDTO);
 }
