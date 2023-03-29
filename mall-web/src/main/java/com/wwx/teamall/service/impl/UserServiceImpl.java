@@ -2,19 +2,25 @@ package com.wwx.teamall.service.impl;
 
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.wwx.teamall.entity.DTO.UpdatePasswordDTO;
+import com.wwx.teamall.entity.DTO.UpdateUserInfoDTO;
 import com.wwx.teamall.entity.TUser;
 import com.wwx.teamall.entity.vo.LoginVo;
+import com.wwx.teamall.entity.vo.UserInfoVo;
 import com.wwx.teamall.enums.UserRoleEnum;
 import com.wwx.teamall.enums.UserSexEnum;
 import com.wwx.teamall.exception.BadRequestException;
 import com.wwx.teamall.mapper.TUserMapper;
 import com.wwx.teamall.model.Result;
 import com.wwx.teamall.service.UserService;
+import com.wwx.teamall.utils.HttpUtil;
 import com.wwx.teamall.utils.JWTUtil;
 import com.wwx.teamall.utils.RandomGenerateUserName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Service
@@ -74,5 +80,59 @@ public class UserServiceImpl implements UserService {
         user.setSex(UserSexEnum.UN_KNOW.getCode());
         userMapper.insert(user);
         return Result.success();
+    }
+
+    @Override
+    public Result getUserInfo() {
+        Integer userId = getUserId();
+        TUser user = userMapper.selectById(userId);
+        UserInfoVo userInfoVo = new UserInfoVo();
+        userInfoVo.setAvatar(user.getAvatar());
+        userInfoVo.setBirthday(user.getBirthday());
+        userInfoVo.setNickName(user.getNickName());
+        userInfoVo.setPhone(user.getPhone());
+        userInfoVo.setSex(user.getSex());
+        return Result.success(userInfoVo);
+    }
+
+    @Override
+    public Result updateUserInfo(UpdateUserInfoDTO updateUserInfoDTO) {
+        Integer userId = getUserId();
+        TUser user = new TUser();
+        user.setSex(updateUserInfoDTO.getSex());
+        user.setPhone(updateUserInfoDTO.getPhone());
+        user.setNickName(updateUserInfoDTO.getNickName());
+        user.setBirthday(updateUserInfoDTO.getBirthday());
+        user.setId(userId);
+        userMapper.updateById(user);
+        return Result.success();
+    }
+
+    @Override
+    public Result updateAvatar(String pl) {
+        Integer userId = getUserId();
+        userMapper.update(null, new LambdaUpdateWrapper<TUser>()
+        .eq(TUser::getId, userId)
+        .set(TUser::getAvatar, pl));
+        return Result.success();
+    }
+
+    @Override
+    public Result updatePassword(UpdatePasswordDTO updatePasswordDTO) {
+        Integer userId = getUserId();
+        TUser user = userMapper.selectById(userId);
+        if (!user.getPassword().equals(DigestUtil.md5Hex(updatePasswordDTO.getOldPassword()))) {
+            throw new BadRequestException("原密码错误");
+        }
+        userMapper.update(null, new LambdaUpdateWrapper<TUser>()
+        .eq(TUser::getId, userId)
+        .set(TUser::getPassword, DigestUtil.md5Hex(updatePasswordDTO.getNewPassword())));
+        return Result.success();
+    }
+
+    private Integer getUserId () {
+        HttpServletRequest request = HttpUtil.getRequest();
+        String authorization = request.getHeader("Authorization");
+        return jwtUtil.getUserId(authorization);
     }
 }
