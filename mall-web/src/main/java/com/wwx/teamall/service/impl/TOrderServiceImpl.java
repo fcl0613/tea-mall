@@ -348,6 +348,12 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
         this.update(null, new LambdaUpdateWrapper<TOrder>()
                 .eq(TOrder::getId, id)
                 .set(TOrder::getOrderStatus, OrderStatusEnum.CANCEL.getCode()));
+        // 增加库存
+        List<TOrderDetail> list = orderDetailService.list(new LambdaQueryWrapper<TOrderDetail>()
+                .eq(TOrderDetail::getOrderId, id));
+        for (TOrderDetail orderDetail : list) {
+            goodsMapper.addStock(orderDetail.getGoodsId(), orderDetail.getGoodsCount());
+        }
         return Result.success();
     }
 
