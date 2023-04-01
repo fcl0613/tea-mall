@@ -7,8 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum GoodsHasCommentEnum {
 
-    NO_COMMENTED(0, "未评论"),
-    HAS_COMMENTED(1, "已评论");
+    ORDER_UN_FINISH(0, "订单未完成"),
+    NO_COMMENTED(1, "未评论"),
+    COMMENTED(2, "已评论");
 
 
     private Integer code;

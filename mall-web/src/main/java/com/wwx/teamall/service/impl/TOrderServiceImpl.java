@@ -2,9 +2,12 @@ package com.wwx.teamall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wwx.teamall.entity.DO.OrderItemDO;
 import com.wwx.teamall.entity.DTO.ConfirmOrderDTO;
 import com.wwx.teamall.entity.DTO.CreateOrderDTO;
+import com.wwx.teamall.entity.DTO.GetOrderListDTO;
 import com.wwx.teamall.entity.TAddress;
 import com.wwx.teamall.entity.TCart;
 import com.wwx.teamall.entity.TGoods;
@@ -14,6 +17,8 @@ import com.wwx.teamall.entity.TStore;
 import com.wwx.teamall.entity.vo.OrderConfirmGoodsVo;
 import com.wwx.teamall.entity.vo.OrderConfirmItemVo;
 import com.wwx.teamall.entity.vo.OrderConfirmVo;
+import com.wwx.teamall.entity.vo.OrderDetailVo;
+import com.wwx.teamall.entity.vo.OrderListVo;
 import com.wwx.teamall.enums.GoodsHasCommentEnum;
 import com.wwx.teamall.enums.OrderStatusEnum;
 import com.wwx.teamall.exception.BadRequestException;
@@ -23,7 +28,6 @@ import com.wwx.teamall.mapper.TGoodsMapper;
 import com.wwx.teamall.mapper.TOrderMapper;
 import com.wwx.teamall.mapper.TStoreMapper;
 import com.wwx.teamall.model.Result;
-import com.wwx.teamall.service.GoodsService;
 import com.wwx.teamall.service.TOrderDetailService;
 import com.wwx.teamall.service.TOrderService;
 import com.wwx.teamall.utils.HttpUtil;
@@ -172,7 +176,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
                             orderDetail.setGoodsId(goods.getId());
                             orderDetail.setGoodsName(goods.getGoodsName());
                             orderDetail.setGoodsPrice(goods.getPrice());
-                            orderDetail.setHasCommented(GoodsHasCommentEnum.NO_COMMENTED.getCode());
+                            orderDetail.setHasCommented(GoodsHasCommentEnum.ORDER_UN_FINISH.getCode());
                             orderDetail.setUserId(userId);
                             orderDetails.add(orderDetail);
                             totalPrice =
@@ -268,7 +272,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
         TOrderDetail orderDetail = new TOrderDetail();
         orderDetail.setOrderId(order.getId());
         orderDetail.setUserId(userId);
-        orderDetail.setHasCommented(GoodsHasCommentEnum.NO_COMMENTED.getCode());
+        orderDetail.setHasCommented(GoodsHasCommentEnum.ORDER_UN_FINISH.getCode());
         orderDetail.setGoodsPrice(goods.getPrice());
         orderDetail.setGoodsName(goods.getGoodsName());
         orderDetail.setGoodsId(goods.getId());
@@ -281,6 +285,98 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
         .eq(TGoods::getId, goods.getId())
         .set(TGoods::getStock, goods.getStock() - count));
         return Result.success();
+    }
+
+    @Override
+    public Result getOrderList(GetOrderListDTO dto) {
+        OrderListVo orderListVo = new OrderListVo();
+        Page<TOrder> orderPage = new Page<>(dto.getPageNum(), dto.getPageSize());
+        Integer userId = getUserId();
+        LambdaQueryWrapper<TOrder> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TOrder::getUserId, userId);
+        if (OrderStatusEnum.checkCode(dto.getStatus())) {
+            queryWrapper.eq(TOrder::getOrderStatus, dto.getStatus());
+        }
+        queryWrapper.orderByDesc(TOrder::getCreateTime);
+        Page<TOrder> page = this.page(orderPage, queryWrapper);
+        List<TOrder> records = page.getRecords();
+        if (records.size() == 0) {
+            orderListVo.setOrderList(new ArrayList<>());
+            orderListVo.setTotal(0l);
+            return Result.success(orderListVo);
+        }
+        List<String> orderIds = new ArrayList<>();
+        for (TOrder record : records) {
+            orderIds.add(record.getId());
+        }
+        // 找到订单详情
+        List<TOrderDetail> orderDetails = orderDetailService.list(new LambdaQueryWrapper<TOrderDetail>()
+                .in(TOrderDetail::getOrderId, orderIds));
+        List<OrderItemDO> orderItemDOS = new ArrayList<>();
+        for (TOrder record : records) {
+            OrderItemDO orderItemDO = new OrderItemDO();
+            orderItemDO.setCreateTime(record.getCreateTime());
+            orderItemDO.setDeliveryName(record.getDeliveryName());
+            orderItemDO.setOrderId(record.getId());
+            orderItemDO.setStatus(record.getOrderStatus());
+            orderItemDO.setStatusStr(OrderStatusEnum.findDescription(record.getOrderStatus()));
+            orderItemDO.setTotalPrice(record.getTotalPrice());
+            List<TOrderDetail> list = new ArrayList<>();
+            for (TOrderDetail orderDetail : orderDetails) {
+                if (record.getId().equals(orderDetail.getOrderId())) {
+                    list.add(orderDetail);
+                }
+            }
+            orderItemDO.setGoodsList(list);
+            orderItemDOS.add(orderItemDO);
+        }
+        orderListVo.setOrderList(orderItemDOS);
+        orderListVo.setTotal(page.getTotal());
+        return Result.success(orderListVo);
+    }
+
+    @Override
+    public Result orderPay(String id) {
+        this.update(null, new LambdaUpdateWrapper<TOrder>()
+        .eq(TOrder::getId, id)
+        .set(TOrder::getOrderStatus, OrderStatusEnum.WAITING_SEND.getCode()));
+        return Result.success();
+    }
+
+    @Override
+    public Result orderCancel(String id) {
+        this.update(null, new LambdaUpdateWrapper<TOrder>()
+                .eq(TOrder::getId, id)
+                .set(TOrder::getOrderStatus, OrderStatusEnum.CANCEL.getCode()));
+        return Result.success();
+    }
+
+    @Override
+    public Result orderConfirm(String id) {
+        this.update(null, new LambdaUpdateWrapper<TOrder>()
+                .eq(TOrder::getId, id)
+                .set(TOrder::getOrderStatus, OrderStatusEnum.FINISHED.getCode()));
+        orderDetailService.update(null, new LambdaUpdateWrapper<TOrderDetail>()
+        .eq(TOrderDetail::getOrderId, id)
+        .set(TOrderDetail::getHasCommented, GoodsHasCommentEnum.NO_COMMENTED.getCode()));
+        return Result.success();
+    }
+
+    @Override
+    public Result getOrderDetail(String id) {
+        TOrder order = this.getById(id);
+        List<TOrderDetail> list = orderDetailService.list(new LambdaQueryWrapper<TOrderDetail>()
+                .eq(TOrderDetail::getOrderId, id));
+        OrderDetailVo orderDetailVo = new OrderDetailVo();
+        orderDetailVo.setAddress(order.getProvice()+order.getCity()+order.getCounty()+order.getDeliveryAddress());
+        orderDetailVo.setDeliveryName(order.getDeliveryName());
+        orderDetailVo.setDeliveryPhone(order.getDeliveryPhone());
+        orderDetailVo.setOrderId(order.getId());
+        orderDetailVo.setStatus(order.getOrderStatus());
+        orderDetailVo.setStatusStr(OrderStatusEnum.findDescription(order.getOrderStatus()));
+        orderDetailVo.setTotalPrice(order.getTotalPrice());
+        orderDetailVo.setGoods(list);
+        return Result.success(orderDetailVo);
     }
 
     private Integer getUserId() {

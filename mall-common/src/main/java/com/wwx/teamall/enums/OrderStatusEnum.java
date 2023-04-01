@@ -15,4 +15,22 @@ public enum  OrderStatusEnum {
 
     private Integer code;
     private String description;
+
+    public static boolean checkCode(Integer code) {
+        for (OrderStatusEnum value : OrderStatusEnum.values()) {
+            if (code.equals(value.getCode())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String findDescription(Integer code) {
+        for (OrderStatusEnum value : OrderStatusEnum.values()) {
+            if (code.equals(value.getCode())) {
+                return value.getDescription();
+            }
+        }
+        return null;
+    }
 }

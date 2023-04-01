@@ -3,6 +3,7 @@ package com.wwx.teamall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wwx.teamall.entity.DTO.ConfirmOrderDTO;
 import com.wwx.teamall.entity.DTO.CreateOrderDTO;
+import com.wwx.teamall.entity.DTO.GetOrderListDTO;
 import com.wwx.teamall.entity.TOrder;
 import com.wwx.teamall.model.Result;
 
@@ -23,4 +24,14 @@ public interface TOrderService extends IService<TOrder> {
     Result directConfirm(Integer id, Integer count);
 
     Result directBuy(Integer id, Integer count, Integer addressId);
+
+    Result getOrderList(GetOrderListDTO dto);
+
+    Result orderPay(String id);
+
+    Result orderCancel(String id);
+
+    Result orderConfirm(String id);
+
+    Result getOrderDetail(String id);
 }
