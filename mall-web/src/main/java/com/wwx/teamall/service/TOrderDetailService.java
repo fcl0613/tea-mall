@@ -2,6 +2,7 @@ package com.wwx.teamall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wwx.teamall.entity.TOrderDetail;
+import com.wwx.teamall.model.Result;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.wwx.teamall.entity.TOrderDetail;
  */
 public interface TOrderDetailService extends IService<TOrderDetail> {
 
+    Result getOrderDetailList();
 }
