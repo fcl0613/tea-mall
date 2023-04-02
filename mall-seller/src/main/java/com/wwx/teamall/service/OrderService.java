@@ -12,4 +12,6 @@ public interface OrderService extends IService<TOrder> {
     Result getOrderDetail(String id);
 
     Result shipments(ShipmentsDTO shipmentsDTO);
+
+    Result cancelOrder(String id);
 }

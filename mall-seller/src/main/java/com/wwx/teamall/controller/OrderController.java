@@ -28,8 +28,18 @@ public class OrderController {
         return orderService.getOrderDetail(id);
     }
 
+    /**
+     * 发货 支持批量
+     * @param shipmentsDTO
+     * @return
+     */
     @PostMapping("/shipments")
     public Result shipments(@RequestBody ShipmentsDTO shipmentsDTO) {
         return orderService.shipments(shipmentsDTO);
+    }
+
+    @PostMapping("/cancel")
+    public Result cancelOrder(@RequestParam("id") String id) {
+        return orderService.cancelOrder(id);
     }
 }

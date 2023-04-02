@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 public class OrderListDO {
     private String orderId;
     private BigDecimal totalPrice;
-    private String orderStatus;
+    private String orderStatusStr;
+    private Integer orderStatus;
     private LocalDateTime creatTime;
 
 }

@@ -13,6 +13,7 @@ import com.wwx.teamall.entity.TOrderDetail;
 import com.wwx.teamall.entity.vo.OrderDetailVo;
 import com.wwx.teamall.entity.vo.OrderListVo;
 import com.wwx.teamall.enums.OrderStatusEnum;
+import com.wwx.teamall.mapper.TGoodsMapper;
 import com.wwx.teamall.mapper.TOrderDetailMapper;
 import com.wwx.teamall.mapper.TOrderMapper;
 import com.wwx.teamall.model.Result;
@@ -42,6 +43,10 @@ public class OrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> implemen
     @Autowired
     private TOrderDetailMapper orderDetailMapper;
 
+    @Autowired
+    private TGoodsMapper goodsMapper;
+
+
     @Override
     public Result getOrderList(GetOrderListDTO dto) {
         Integer storeId = getStoreId();
@@ -59,7 +64,7 @@ public class OrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> implemen
             queryWrapper.ge(TOrder::getCreateTime, LocalDateTime.parse(dto.getBeginTime(), dateTimeFormatter));
         }
         if (!StrUtil.isBlank(dto.getEndTime())) {
-            queryWrapper.le(TOrder::getCreateTime, LocalDateTime.parse(dto.getBeginTime(), dateTimeFormatter));
+            queryWrapper.le(TOrder::getCreateTime, LocalDateTime.parse(dto.getEndTime(), dateTimeFormatter));
         }
         Page<TOrder> page = orderMapper.selectPage(orderPage, queryWrapper);
         List<OrderListDO> list = new ArrayList<>();
@@ -67,7 +72,8 @@ public class OrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> implemen
             OrderListDO orderListDO = new OrderListDO();
             orderListDO.setCreatTime(record.getCreateTime());
             orderListDO.setOrderId(record.getId());
-            orderListDO.setOrderStatus(OrderStatusEnum.findDescription(record.getOrderStatus()));
+            orderListDO.setOrderStatus(record.getOrderStatus());
+            orderListDO.setOrderStatusStr(OrderStatusEnum.findDescription(record.getOrderStatus()));
             orderListDO.setTotalPrice(record.getTotalPrice());
             list.add(orderListDO);
         }
@@ -100,6 +106,20 @@ public class OrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> implemen
         .eq(TOrder::getOrderStatus, OrderStatusEnum.WAITING_SEND.getCode())
         .in(TOrder::getId, shipmentsDTO.getIds())
         .set(TOrder::getOrderStatus, OrderStatusEnum.WAITING_DELIVERY.getCode()));
+        return Result.success();
+    }
+
+    @Override
+    public Result cancelOrder(String id) {
+        this.update(null, new LambdaUpdateWrapper<TOrder>()
+                .eq(TOrder::getId, id)
+                .set(TOrder::getOrderStatus, OrderStatusEnum.CANCEL.getCode()));
+        // 增加库存
+        List<TOrderDetail> list = orderDetailMapper.selectList(new LambdaQueryWrapper<TOrderDetail>()
+                .eq(TOrderDetail::getOrderId, id));
+        for (TOrderDetail orderDetail : list) {
+            goodsMapper.addStock(orderDetail.getGoodsId(), orderDetail.getGoodsCount());
+        }
         return Result.success();
     }
 

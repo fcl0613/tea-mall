@@ -73,5 +73,5 @@ public class TGoods implements Serializable {
      */
     private Integer goodsStatus;
 
-
+    private Integer sales;
 }
