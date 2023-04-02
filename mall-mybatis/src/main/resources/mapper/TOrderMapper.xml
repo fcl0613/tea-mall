@@ -14,4 +14,18 @@
         select count(id) from t_order
         where store_id = #{storeId} AND DATE_FORMAT(create_time,'%Y-%m-%d') = #{date}
     </select>
+
+    <select id="totalIncomeForAdmin" resultType="decimal">
+        SELECT IFNULL(SUM(total_price),0) from t_order
+    </select>
+
+    <select id="yesterdayIncomeForAdmin" resultType="decimal">
+        SELECT IFNULL(SUM(total_price),0) from t_order
+        WHERE DATE_FORMAT(create_time,'%Y-%m-%d') = #{date}
+    </select>
+
+    <select id="yesterdayOrderCountForAdmin" resultType="integer">
+        select count(id) from t_order
+        where DATE_FORMAT(create_time,'%Y-%m-%d') = #{date}
+    </select>
 </mapper>

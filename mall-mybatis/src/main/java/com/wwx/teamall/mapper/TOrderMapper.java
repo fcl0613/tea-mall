@@ -24,4 +24,10 @@ public interface TOrderMapper extends BaseMapper<TOrder> {
 
     Integer yesterdayOrderCount(@Param("storeId") Integer storeId,
                                 @Param("date") String date);
+
+    BigDecimal totalIncomeForAdmin();
+
+    BigDecimal yesterdayIncomeForAdmin(@Param("date") String date);
+
+    Integer yesterdayOrderCountForAdmin(@Param("date") String date);
 }
