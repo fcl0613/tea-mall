@@ -9,4 +9,5 @@ public class UserInfoVo {
     private Integer sex;
     private String birthday;
     private String nickName;
+    private Integer role;
 }

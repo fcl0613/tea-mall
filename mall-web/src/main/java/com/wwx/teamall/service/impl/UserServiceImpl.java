@@ -3,14 +3,18 @@ package com.wwx.teamall.service.impl;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.wwx.teamall.entity.DTO.SellerApplyDTO;
 import com.wwx.teamall.entity.DTO.UpdatePasswordDTO;
 import com.wwx.teamall.entity.DTO.UpdateUserInfoDTO;
+import com.wwx.teamall.entity.TStoreApply;
 import com.wwx.teamall.entity.TUser;
 import com.wwx.teamall.entity.vo.LoginVo;
 import com.wwx.teamall.entity.vo.UserInfoVo;
+import com.wwx.teamall.enums.StoreApplyEnum;
 import com.wwx.teamall.enums.UserRoleEnum;
 import com.wwx.teamall.enums.UserSexEnum;
 import com.wwx.teamall.exception.BadRequestException;
+import com.wwx.teamall.mapper.TStoreApplyMapper;
 import com.wwx.teamall.mapper.TUserMapper;
 import com.wwx.teamall.model.Result;
 import com.wwx.teamall.service.UserService;
@@ -21,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,6 +38,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JWTUtil jwtUtil;
+
+    @Autowired
+    private TStoreApplyMapper storeApplyMapper;
 
     @Override
     public Result login(String username, String password) {
@@ -92,6 +100,7 @@ public class UserServiceImpl implements UserService {
         userInfoVo.setNickName(user.getNickName());
         userInfoVo.setPhone(user.getPhone());
         userInfoVo.setSex(user.getSex());
+        userInfoVo.setRole(user.getRole());
         return Result.success(userInfoVo);
     }
 
@@ -127,6 +136,20 @@ public class UserServiceImpl implements UserService {
         userMapper.update(null, new LambdaUpdateWrapper<TUser>()
         .eq(TUser::getId, userId)
         .set(TUser::getPassword, DigestUtil.md5Hex(updatePasswordDTO.getNewPassword())));
+        return Result.success();
+    }
+
+    @Override
+    public Result sellerApply(SellerApplyDTO sellerApplyDTO) {
+        Integer userId = getUserId();
+        TStoreApply storeApply = new TStoreApply();
+        storeApply.setCreateTime(LocalDateTime.now());
+        storeApply.setName(sellerApplyDTO.getName());
+        storeApply.setPhone(sellerApplyDTO.getPhone());
+        storeApply.setStatus(StoreApplyEnum.PENDING.getCode());
+        storeApply.setStoreName(sellerApplyDTO.getStoreName());
+        storeApply.setUserId(userId);
+        storeApplyMapper.insert(storeApply);
         return Result.success();
     }
 

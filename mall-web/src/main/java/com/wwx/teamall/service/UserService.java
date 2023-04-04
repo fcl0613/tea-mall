@@ -1,5 +1,6 @@
 package com.wwx.teamall.service;
 
+import com.wwx.teamall.entity.DTO.SellerApplyDTO;
 import com.wwx.teamall.entity.DTO.UpdatePasswordDTO;
 import com.wwx.teamall.entity.DTO.UpdateUserInfoDTO;
 import com.wwx.teamall.model.Result;
@@ -16,4 +17,6 @@ public interface UserService {
     Result updateAvatar(String pl);
 
     Result updatePassword(UpdatePasswordDTO updatePasswordDTO);
+
+    Result sellerApply(SellerApplyDTO sellerApplyDTO);
 }

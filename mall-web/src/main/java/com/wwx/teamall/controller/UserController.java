@@ -1,5 +1,6 @@
 package com.wwx.teamall.controller;
 
+import com.wwx.teamall.entity.DTO.SellerApplyDTO;
 import com.wwx.teamall.entity.DTO.UpdatePasswordDTO;
 import com.wwx.teamall.entity.DTO.UpdateUserInfoDTO;
 import com.wwx.teamall.model.Result;
@@ -49,6 +50,11 @@ public class UserController {
     @PostMapping("/update/password")
     public Result updatePassword(@RequestBody UpdatePasswordDTO updatePasswordDTO) {
         return userService.updatePassword(updatePasswordDTO);
+    }
+
+    @PostMapping("/seller/apply")
+    public Result sellerApply(@RequestBody SellerApplyDTO sellerApplyDTO) {
+        return userService.sellerApply(sellerApplyDTO);
     }
 
     @GetMapping("/test")
