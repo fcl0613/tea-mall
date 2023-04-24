@@ -58,7 +58,7 @@ public class OrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> implemen
         if (!StrUtil.isBlank(dto.getEndTime())) {
             queryWrapper.le(TOrder::getCreateTime, LocalDateTime.parse(dto.getEndTime(), dateTimeFormatter));
         }
-        Page<TOrder> page = orderMapper.selectPage(orderPage, queryWrapper);
+        Page<TOrder> page = orderMapper.selectPage(orderPage, queryWrapper.orderByDesc(TOrder::getCreateTime));
         List<OrderListDO> list = new ArrayList<>();
         for (TOrder record : page.getRecords()) {
             OrderListDO orderListDO = new OrderListDO();
