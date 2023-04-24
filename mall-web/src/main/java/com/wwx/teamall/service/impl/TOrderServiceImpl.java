@@ -22,6 +22,7 @@ import com.wwx.teamall.entity.vo.OrderListVo;
 import com.wwx.teamall.enums.GoodsHasCommentEnum;
 import com.wwx.teamall.enums.OrderStatusEnum;
 import com.wwx.teamall.exception.BadRequestException;
+import com.wwx.teamall.mapper.GoodsMapper;
 import com.wwx.teamall.mapper.TAddressMapper;
 import com.wwx.teamall.mapper.TCartMapper;
 import com.wwx.teamall.mapper.TGoodsMapper;
@@ -58,7 +59,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
     private TCartMapper cartMapper;
 
     @Autowired
-    private TGoodsMapper goodsMapper;
+    private GoodsMapper goodsMapper;
 
     @Autowired
     private TStoreMapper storeMapper;
@@ -72,6 +73,9 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
     @Autowired
     private TOrderDetailService orderDetailService;
 
+    @Autowired
+    private TGoodsMapper tGoodsMapper;
+
 
     @Override
     public Result confirmOrder(ConfirmOrderDTO confirmOrderDTO) {
@@ -84,7 +88,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
             cartIds.add(cart.getId());
         }
         // 获取购物车中的商品信息
-        List<TGoods> goodsList = goodsMapper.selectList(new LambdaQueryWrapper<TGoods>()
+        List<TGoods> goodsList = tGoodsMapper.selectList(new LambdaQueryWrapper<TGoods>()
                 .in(TGoods::getId, goodsIds));
         List<Integer> storeIds = new ArrayList<>();
         for (TGoods goods : goodsList) {
@@ -143,7 +147,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
         // 获取地址信息
         TAddress address = addressMapper.selectById(createOrderDTO.getAddressId());
         // 获取购物车中的商品信息
-        List<TGoods> goodsList = goodsMapper.selectList(new LambdaQueryWrapper<TGoods>()
+        List<TGoods> goodsList = tGoodsMapper.selectList(new LambdaQueryWrapper<TGoods>()
                 .in(TGoods::getId, goodsIds));
         Set<Integer> storeIdSet = new HashSet<>();
         for (TGoods goods : goodsList) {
@@ -201,7 +205,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
         }
         // 更新库存
         for (TGoods goods : goodsList) {
-            goodsMapper.update(null, new LambdaUpdateWrapper<TGoods>()
+            tGoodsMapper.update(null, new LambdaUpdateWrapper<TGoods>()
             .eq(TGoods::getId, goods.getId())
             .set(TGoods::getStock, goods.getStock()));
         }
@@ -213,7 +217,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
     @Override
     public Result directConfirm(Integer id, Integer count) {
         // 获取商品信息
-        TGoods goods = goodsMapper.selectById(id);
+        TGoods goods = tGoodsMapper.selectById(id);
         Integer userId = getUserId();
         // 获取收货地址相关信息
         List<TAddress> addresses = addressMapper.selectList(new LambdaQueryWrapper<TAddress>()
@@ -246,7 +250,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
     @Override
     public Result directBuy(Integer id, Integer count, Integer addressId) {
         // 找商品信息
-        TGoods goods = goodsMapper.selectById(id);
+        TGoods goods = tGoodsMapper.selectById(id);
         Integer stock = goods.getStock();
         if (stock - count < 0) {
             throw new BadRequestException("当前商品库存不足");
@@ -281,7 +285,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderMapper, TOrder> impleme
         orderDetail.setCreateTime(createTime);
         orderDetailService.save(orderDetail);
         // 扣减库存
-        goodsMapper.update(null, new LambdaUpdateWrapper<TGoods>()
+        tGoodsMapper.update(null, new LambdaUpdateWrapper<TGoods>()
         .eq(TGoods::getId, goods.getId())
         .set(TGoods::getStock, goods.getStock() - count));
         return Result.success();

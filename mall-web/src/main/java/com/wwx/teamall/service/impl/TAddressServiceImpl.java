@@ -1,5 +1,6 @@
 package com.wwx.teamall.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wwx.teamall.entity.TAddress;
 import com.wwx.teamall.mapper.TAddressMapper;
@@ -42,7 +43,7 @@ public class TAddressServiceImpl extends ServiceImpl<TAddressMapper, TAddress> i
 
     @Override
     public Result getAddressList() {
-        List<TAddress> list = this.list();
+        List<TAddress> list = this.list(new LambdaQueryWrapper<TAddress>().eq(TAddress::getUserId, getUserId()));
         return Result.success(list);
     }
 
