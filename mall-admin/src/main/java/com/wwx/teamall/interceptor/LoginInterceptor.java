@@ -26,7 +26,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("进入权限拦截器");
         //http的header中获得token
-        String token = request.getHeader("token");
+        String token = request.getHeader("Authorization");
         //token不存在
         if (token == null || token.equals("")) throw new BadRequestException("无权限，请先登录");
         //验证token

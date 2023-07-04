@@ -3,6 +3,7 @@ package com.wwx.teamall.controller;
 
 import com.wwx.teamall.model.Result;
 import com.wwx.teamall.service.TAdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +23,7 @@ import javax.annotation.Resource;
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Resource
+    @Autowired
     private TAdminService tAdminService;
 
     @PostMapping("/login")

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwx.teamall.mapper.CartMapper">
+    <select id="getCartList" resultType="com.wwx.teamall.entity.DO.CartDO">
+        SELECT t1.id,t1.goods_count,t_goods.goods_cover,t_goods.goods_name,t_goods.id AS goods_id, t_goods.price FROM
+        (
+        SELECT id,goods_id,goods_count FROM t_cart WHERE user_id = #{userId}
+        ) AS t1
+        INNER JOIN
+        t_goods
+        ON t1.goods_id = t_goods.id
+    </select>
+</mapper>

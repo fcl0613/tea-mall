@@ -21,8 +21,8 @@ public class Result<T> {
         return new Result(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.getMsg(), data);
     }
 
-    public static Result success(String msg) {
-        return new Result(ResultCode.SUCCESS.getCode(), msg, null);
+    public static <T>Result<T> success(String msg, T data) {
+        return new Result(ResultCode.SUCCESS.getCode(), msg, data);
     }
 
     public static Result failed() {
